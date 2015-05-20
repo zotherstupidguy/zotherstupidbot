@@ -2,6 +2,23 @@
 
 require 'geoip'
 
+require 'cinch'
+
+bot = Cinch::Bot.new do
+  configure do |c|
+    c.nick = "zotherstupidbot"
+    c.server = "irc.freenode.org"
+    c.channels = ["#hackspree"]
+  end
+
+  on :message, "hello" do |m|
+    m.reply "Hello, #{m.user.nick}"
+  end
+end
+
+bot.start
+
+=begin
 Country = Struct.new(:name, :users, :number) do
   def Greetings 
     "Hello from #{name} ~ #{users}!"
@@ -26,3 +43,4 @@ File.readlines('ips').each do |line|
 end
 
 p @countries
+=end
