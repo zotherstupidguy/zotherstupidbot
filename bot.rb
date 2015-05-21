@@ -4,12 +4,12 @@ require 'geoip'
 require 'cinch'
 require "cinch/plugins/identify"
 require 'yaml'
+require 'resolv'
 
 config = YAML.load_file("access.yml") 
 
 @bot = Cinch::Bot.new do
   configure do |c|
-    # add all required options here
     c.plugins.plugins = [Cinch::Plugins::Identify] # optionally add more plugins
     c.plugins.options[Cinch::Plugins::Identify] = {
       :username => config["env"]["nick"],
@@ -18,49 +18,43 @@ config = YAML.load_file("access.yml")
     }
     c.nick = "zotherstupidbot"
     c.server = "irc.freenode.org"
-    c.channels = ["#anime"]
+    c.channels = ["#bots"]
   end
 
-  on :message, "hello" do |m|
-    m.reply "Hello, #{m.user.nick}"
-
-    p "##################"
-    p @bot.user_list
+  on :message, "nearby!" do |m|
+    @country = {} 
 
     @bot.user_list.each do |u|
-      #p u.in_whois  
-      p u.nick + " from " + u.host
-      #p u.online?
-      #p u.channels
-      #p u.data
-    end 
-  end
+      #Resolv::DNS.new.each_address(u.host) { |addr| @countryk (u.nick + " from " + GeoIP.new('GeoLiteCity.dat').country(addr.to_s).country_name.to_s)}
+      #Resolv::DNS.new.each_address(u.host) do |addr| 
+      #@country[GeoIP.new('GeoLiteCity.dat').country(addr.to_s).country_name.to_s] = u.nick
+      begin 
+	#if @country[GeoIP.new('GeoLiteCity.dat').country(Resolv.getaddress(u.host.to_s)).country_name.to_s].nil? 
+	p u.nick
+	p u.host
+	p @country[GeoIP.new('GeoLiteCity.dat').country(u.host).country_name.to_s] = [u.nick]
+	#else
+	#  @country[GeoIP.new('GeoLiteCity.dat').country( Resolv.getaddress(u.host.to_s))country_name.to_s] << u.nick
+	#end
+
+	#p GeoIP.new('GeoLiteCity.dat').country(m.user.host).country_name.to_s
+	#m.reply "hey #{m.user.nick}, it seems that you are from #{GeoIP.new('GeoLiteCity.dat').country(m.user.host).country_name.to_s}" #, nearby there are #{@country[Resolv.getaddress(m.user.host).to_s].uniq!}"
+      rescue Exception 
+	#puts "#{$!} (#{$!.class})"
+	#$stdout.flush
+	#raise $!
+	skip
+      end
+    end
+  end 
+  #m.reply "Hello, #{m.user.nick}"
+
+  #p u.in_whois  
+  #p u.nick + " from " + Resolv::DNS.new.each_address(u.host) { |addr| p addr }
+  #Resolv::DNS.new.each_address(u.host) { |addr| m.reply(u.nick + " from " + addr.to_s) }
+  #Resolv::DNS.new.each_address(u.host) { |addr| m.reply(u.nick + " from " + GeoIP.new('GeoLiteCity.dat').country(addr.to_s).country_name.to_s)}
+  #p u.online?
+  #p u.channels
+  #p u.data
 end
 @bot.start
-
-=begin
-Country = Struct.new(:name, :users, :number) do
-  def Greetings 
-    "Hello from #{name} ~ #{users}!"
-  end
-end
-
-@countries = {}
-File.readlines('ips').each do |line|
-  begin
-    # Use the country database:
-    c = GeoIP.new('GeoLiteCity.dat').country(line)
-    if @countries[c.country_name].nil? 
-      @countries[c.country_name].number = 1 
-    else
-      @countries[c.country_name].number += 1
-    end
-    @countries[c.country_name].users += line 
-    p c.country_name
-  rescue
-    print line +  " is difficult!"
-  end
-end
-
-p @countries
-=end
