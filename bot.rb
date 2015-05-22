@@ -25,36 +25,21 @@ config = YAML.load_file("access.yml")
     @country = {} 
 
     @bot.user_list.each do |u|
-      #Resolv::DNS.new.each_address(u.host) { |addr| @countryk (u.nick + " from " + GeoIP.new('GeoLiteCity.dat').country(addr.to_s).country_name.to_s)}
-      #Resolv::DNS.new.each_address(u.host) do |addr| 
-      #@country[GeoIP.new('GeoLiteCity.dat').country(addr.to_s).country_name.to_s] = u.nick
       begin 
-	#if @country[GeoIP.new('GeoLiteCity.dat').country(Resolv.getaddress(u.host.to_s)).country_name.to_s].nil? 
-	p u.nick
-	p u.host
-	p @country[GeoIP.new('GeoLiteCity.dat').country(u.host).country_name.to_s] = [u.nick]
-	#else
-	#  @country[GeoIP.new('GeoLiteCity.dat').country( Resolv.getaddress(u.host.to_s))country_name.to_s] << u.nick
-	#end
-
-	#p GeoIP.new('GeoLiteCity.dat').country(m.user.host).country_name.to_s
-	#m.reply "hey #{m.user.nick}, it seems that you are from #{GeoIP.new('GeoLiteCity.dat').country(m.user.host).country_name.to_s}" #, nearby there are #{@country[Resolv.getaddress(m.user.host).to_s].uniq!}"
+	if @country[GeoIP.new('GeoLiteCity.dat').country(Resolv.getaddress(u.host.to_s)).country_name.to_s].nil? 
+	  p u.nick
+	  p u.host
+	  @country[GeoIP.new('GeoLiteCity.dat').country(u.host).country_name.to_s] = [u.nick]
+	else
+	  @country[GeoIP.new('GeoLiteCity.dat').country(Resolv.getaddress(u.host)).country_name.to_s] << u.nick
+	end
       rescue Exception 
-	#puts "#{$!} (#{$!.class})"
-	#$stdout.flush
-	#raise $!
-	skip
+	next
       end
     end
+    p @country
+    m.reply "#{m.user.nick}, it seems that you are in #{GeoIP.new('GeoLiteCity.dat').country(m.user.host).country_name.to_s}, nearby #{@@country[Resolv.getaddress(m.user.host).to_s]}" 
   end 
-  #m.reply "Hello, #{m.user.nick}"
 
-  #p u.in_whois  
-  #p u.nick + " from " + Resolv::DNS.new.each_address(u.host) { |addr| p addr }
-  #Resolv::DNS.new.each_address(u.host) { |addr| m.reply(u.nick + " from " + addr.to_s) }
-  #Resolv::DNS.new.each_address(u.host) { |addr| m.reply(u.nick + " from " + GeoIP.new('GeoLiteCity.dat').country(addr.to_s).country_name.to_s)}
-  #p u.online?
-  #p u.channels
-  #p u.data
 end
 @bot.start
