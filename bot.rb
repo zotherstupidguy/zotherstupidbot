@@ -5,6 +5,7 @@ require 'cinch'
 require "cinch/plugins/identify"
 require 'yaml'
 require 'resolv'
+require 'artii'
 
 config = YAML.load_file("access.yml") 
 
@@ -18,7 +19,23 @@ config = YAML.load_file("access.yml")
     }
     c.nick = "zotherstupidbot"
     c.server = "irc.freenode.org"
-    c.channels = ["#bots"]
+    c.channels = ["#hackspree"]
+  end
+
+  on :message, "whoami" do |m|
+
+    if m.user.nick == "zotherstupidguy" 
+      artii = Artii::Base.new :font => 'slant'
+      #m.reply Format(:red, artii.asciify("#{m.user.nick} rocks!"))
+
+
+      #m.reply "\x03#{4},#{7} #{"hii"} \x03" 
+      # │ alekst_ | "\x031,2This is how I roll with friends\x03"
+      #m.reply "^C5colored text^C" + artii.asciify("#{m.user.nick} rocks!")
+      m.reply artii.asciify("#{m.user.nick} is 3l33t!!")
+
+    end
+
   end
 
   on :message, "nearby!" do |m|
